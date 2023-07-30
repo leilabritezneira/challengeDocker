@@ -1,0 +1,56 @@
+version: '3'
+
+networks:
+    oplaystore:
+        driver: bridge
+
+services:
+    apachephp:
+        user: '1000:1000' # pour exécuter le service avec le user courant, permet de ne pas avoir de conflits d'accès aux fichiers partagés dans "volumes"
+        build:
+            context: .
+            dockerfile: apachephp.dockerfile
+        ports:
+            - 980:80 # port 980, pour éviter les conflits de ports sur ta machine
+        volumes:
+            - ./src:/var/www/html/oplaystore # pour éditer à chaud notre site
+        depends_on:
+            - db
+        networks:
+            - oplaystore
+    composer:
+        build:
+            context: .
+            dockerfile: composer.dockerfile
+        volumes:
+            - ./src:/var/www/html/oplaystore
+        working_dir: /var/www/html/oplaystore
+        networks:
+            - oplaystore
+    db: 
+        image: mariadb:10.6
+        restart: unless-stopped
+        environment:
+            MARIADB_DATABASE: ${DB_DATABASE}
+            MARIADB_USER: ${DB_USERNAME}
+            MARIADB_PASSWORD: ${DB_PASSWORD}
+            MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
+        ports:
+            - 9306:3306 # port externe 9432, pour éviter les conflits de ports sur ta machine
+        volumes:
+            - ./src/doc/oPlaystore.sql:/docker-entrypoint-initdb.d/import.sql
+            - ./db/data:/var/lib/mysql
+        networks:
+            - oplaystore 
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=db
+        ports:
+            - 7181:80
+        depends_on: 
+            - db
+        
+
