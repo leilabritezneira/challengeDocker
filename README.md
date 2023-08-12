@@ -3,7 +3,7 @@
 </div>
 
 <hr>
-<h1> :uk: # oPlaystore </h1>
+<h1> :uk: oPlaystore </h1>
 :octocat: In this repository you will find two challenges made during a course. The aim of these challenges was to put into practice what was learnt about docker: immages, dockerfile and docker-compose creations. 
 <br>
 <br> 🖥️ Used technology: PHP - SQL - Docker
